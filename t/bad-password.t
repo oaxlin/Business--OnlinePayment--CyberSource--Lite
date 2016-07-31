@@ -35,7 +35,7 @@ my $data = {
 $client->content(%$data);
 $client->test_transaction(1);    # test, dont really charge
 
-my $success = $client->submit();
+my $success = eval {$client->submit()};
 
 ok !$client->is_success(), 'transaction unsuccessful'
   or diag $client->error_message();

@@ -442,6 +442,7 @@ sub submit {
         if ( $resp->{'c:replyMessage'}->{'c:ccAuthReply'} ) {
             $self->authorization( $resp->{'c:replyMessage'}->{'c:ccAuthReply'}->{'c:authorizationCode'} || '' );
             $self->cvv2_response( $resp->{'c:replyMessage'}->{'c:ccAuthReply'}->{'c:cvCode'} || '' );
+            $self->cvv2_response( '' ) if ref $resp->{'c:replyMessage'}->{'c:ccAuthReply'}->{'c:cvCode'}; # empty values become hashrefs
             $self->avs_code( $resp->{'c:replyMessage'}->{'c:ccAuthReply'}->{'c:avsCode'} || '' );
         }
 
@@ -450,10 +451,11 @@ sub submit {
             if $fail_codes->{$resp->{'c:replyMessage'}->{'c:reasonCode'}}->{'failure_status'};
         $self->error_message( $fail_codes->{$resp->{'c:replyMessage'}->{'c:reasonCode'}}->{'desc'} // ($resp->{'c:replyMessage'}->{'c:reasonCode'}.' Unknown reason code') );
     } elsif ( $resp->{'soap:Fault'} ) {
-        $self->is_success( 0 );
+        $self->is_success( undef );
         $self->result_code( undef );
         $self->order_number( undef );
         $self->error_message( $resp->{'soap:Fault'}->{'faultstring'} );
+        die $self->error_message; # We die so you can tell the difference between "Approve", "Declined" and "Unknown"
     }
     $self->is_success;
 }
@@ -519,7 +521,7 @@ sub reason_code_hash {
 152,,"Error: The request was received, but a service did not finish running in time."
 200,declined,The authorization request was approved by the issuing bank but declined by CyberSource because it did not pass the Address Verification Service (AVS) check
 201,declined,"The issuing bank has questions about the request. You do not receive an authorization code programmatically, but you might receive one verbally by calling the processor"
-202,expired,"Expired card. You might also receive this if the expiration date you provided does not match the date the issuing bank has on file.  Note: The ccCreditService does not check the expiration date; instead, it passes the request to the payment processor. If the payment processor allows issuance of credits to expired cards, CyberSource does not limit this functionality."
+202,expired,"Expired card. You might also receive this if the expiration date you provided does not match the date the issuing bank has on file"
 203,declined,General decline of the card. No other information provided by the issuing bank.
 204,nsf,Insufficient funds in the account.
 205,stolen,Stolen or lost card.
