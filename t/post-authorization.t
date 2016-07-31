@@ -15,7 +15,7 @@ plan skip_all => 'No credentials set in the environment.'
   . 'PERL_BUSINESS_CYBERSOURCE_PASSWORD to run this test.'
   unless ( $username && $password );
 
-my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource'] );
+my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource::Lite'] );
 
 my $data = {
  login          => $username,
@@ -51,7 +51,6 @@ if ($success) {
   type           => $data->{type},
   amount         => $data->{amount},
   po_number      => $client->order_number(), };
-warn $client->order_number;
 
  $client->content(%$options);
 
