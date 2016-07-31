@@ -229,7 +229,7 @@ sub test_transaction {
     }
 }
 
-=head2 set_defaults
+=head2 submit 
 
 Submit your transaction to cybersource
 
@@ -494,9 +494,9 @@ sub _tx_init {
     }
 }
 
-=head2 set_defaults
+=head2 reason_code_hash
 
-Submit your transaction to cybersource
+Returns a list of reason codes usable by the submit function
 
 =cut
 
