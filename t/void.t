@@ -15,7 +15,7 @@ plan skip_all => 'No credentials set in the environment.'
   . 'PERL_BUSINESS_CYBERSOURCE_PASSWORD to run this test.'
   unless ( $username && $password );
 
-my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource'] );
+my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource::Lite'] );
 
 my $data = {
  login          => $username,
@@ -55,7 +55,7 @@ like $client->response_code(), qr/^\w+$/x, 'Response code is 200';
 is ref( $client->response_headers() ), 'HASH', 'Response headers is a hashref';
 like $client->response_page(), qr/^.+$/sm, 'Response page is a string';
 like $client->result_code(),   qr/^\w+$/,  'Result code is a string';
-is $client->avs_code(),        'Y',        'AVS code is a string';
+like $client->avs_code(),      qr/^.$/,        'AVS code is a string';
 is $client->cvv2_response(),   'M',        'CVV2 code is a string';
 is $client->transaction_type(), $data->{type}, 'Type matches';
 is $client->login(),    $username, 'Login matches';
