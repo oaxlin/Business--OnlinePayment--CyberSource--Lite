@@ -16,7 +16,7 @@ plan skip_all => 'No credentials set in the environment.'
   . 'PERL_BUSINESS_CYBERSOURCE_PASSWORD to run this test.'
   unless ( $username && $password );
 
-my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource'] );
+my $client = new_ok( use_module('Business::OnlinePayment'), ['CyberSource::Lite'] );
 
 # Stand-alone credit
 my $data = {
@@ -44,11 +44,11 @@ $client->test_transaction(1);    # test, dont really charge
 
 my $success = $client->submit();
 
-ok $client->is_success(), 'Credit was successful'
+ok $client->is_success(), 'Unlinked Credit was successful'
   or diag $client->error_message();
 
 is $client->is_success(), $success, 'Success maches';
-like $client->order_number(),  qr/^\w+$/x, '';
+like $client->order_number(),  qr/^\w+$/x, 'Order number exists';
 like $client->response_code(), qr/^\w+$/x, 'Response code is 200';
 is ref( $client->response_headers() ), 'HASH', 'Response headers is a hashref';
 like $client->response_page(), qr/^.+$/sm, 'Response page is a string';
@@ -75,7 +75,7 @@ my $options = {
  action         => 'Credit',
  description    => $data->{description},
  amount         => $data->{amount},
- card_number    => $data->{card_number},
+# card_number    => $data->{card_number},
  expiration     => $data->{expiration},
  cvv2           => $data->{cvv2},
  po_number      => $client->order_number(), };
@@ -84,7 +84,7 @@ $client->content(%$options);
 
 $success = $client->submit();
 
-ok $client->is_success(), 'Credit was successful'
+ok $client->is_success(), 'Linked Credit was successful'
   or diag $client->error_message();
 
 is $client->is_success(), $success, 'Success matches';
