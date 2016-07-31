@@ -386,11 +386,11 @@ sub submit {
             $writer->dataElement('ignoreAVSResult', 'true' ) if 1;
           $writer->endTag('businessRules');
         }
-    } elsif ( $content{'account_number'} ) {
+    } elsif ( $content{'type'} eq 'ECHECK' ) {
+          my $name =  $content{'account_name'} // $content{'name'};
           $writer->startTag('check');
-            $writer->dataElement('fullName', $content{'account_name'} // $content{'name'} ); # TODO is this customers name or bank_name
+            $writer->dataElement('fullName', $name ) if $name;
             $writer->dataElement('accountNumber', $content{'account_number'} ) if $content{'account_number'};
-            $writer->dataElement('bankTransitNumber', $content{'routing_code'} ) if $content{'routing_code'};
             my $typeTrans = {
                 #   BOP                CyberSource
                 'Personal Checking' => 'C',
@@ -399,11 +399,10 @@ sub submit {
                 'Business Savings'  => 'X',
             };
             $writer->dataElement('accountType', $typeTrans->{$content{'account_type'}} // 'C' ) if $content{'account_type'};
-            # $writer->dataElement('checkNumber', $content{''} );
-            $writer->dataElement('terminalCity', $content{'bank_city'} ) if $content{'bank_city'};
-            $writer->dataElement('terminalState', $content{'bank_state'} ) if $content{'bank_state'};
-
+            $writer->dataElement('bankTransitNumber', $content{'routing_code'} ) if $content{'routing_code'};
+            $writer->dataElement('checkNumber', $content{'check_number'} ) if $content{'check_number'};
           $writer->endTag('check');
+          $writer->emptyTag('ecDebitService',run=>'true');
     }
         $writer->endTag('requestMessage');
       $writer->endTag('soap:Body');
@@ -490,7 +489,7 @@ sub _tx_init {
             ($ptr->{'cvv2'} ? '(?<=[^\d])'.quotemeta($ptr->{'cvv2'}).'(?=[^\d])' : '')=>'DELETED',
             });
         $self->_scrubber_add_card($ptr->{'card_number'});
-        $self->_scrubber_add_card($ptr->{'account_number'});
+        #$self->_scrubber_add_card($ptr->{'account_number'});
     }
 }
 
