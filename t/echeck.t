@@ -22,7 +22,7 @@ my $data = {
  password       => $password,
  invoice_number => 44544,
  type           => 'ECHECK',
- action         => 'Authorization Only',
+ action         => 'Normal Authorization',
  description    => 'Business::OnlinePayment echeck test',
  amount         => '100',
  first_name     => 'John',
@@ -75,6 +75,13 @@ $data->{'order_number'} = $client->order_number;
 $client->content(%$data);
 $success = $client->submit();
 ok $client->is_success(), 'credit echeck transaction successful'
+  or diag $client->error_message();
+
+$data->{'action'} = 'Void';
+$client->content(%$data);
+$success = $client->submit();
+is $client->result_code, 246, 'Got expected failure result_code';
+ok !$client->is_success(), 'void echeck credit failed (as expected)'
   or diag $client->error_message();
 
 done_testing;

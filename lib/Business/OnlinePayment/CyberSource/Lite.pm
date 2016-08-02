@@ -362,10 +362,13 @@ sub submit {
         }
         if ( $content{'action'} eq 'Normal Authorization' ) {
           $writer->emptyTag('ccCaptureService',run=>'true');
-        } elsif ( $content{'action'} eq 'Void' ) {
+        } elsif ( $content{'action'} eq 'Auth Reversal' ) {
           $writer->startTag('ccAuthReversalService',run=>'true');
             $writer->dataElement('authRequestID', $content{order_number} // $self->order_number );
           $writer->endTag('ccAuthReversalService');
+        } elsif ( $content{'action'} eq 'Void' ) {
+          $writer->startTag('voidService',run=>'true');
+            $writer->dataElement('voidRequestID', $content{order_number} // $self->order_number );
         } elsif ( $content{'action'} eq 'Post Authorization' ) {
           $writer->startTag('ccCaptureService',run=>'true');
             $writer->dataElement('authRequestID', $content{order_number} // $self->order_number );
@@ -391,7 +394,11 @@ sub submit {
           $writer->startTag('ecCreditService',run=>'true');
             $writer->dataElement('debitRequestID', $content{order_number} // $self->order_number );
           $writer->endTag('ecCreditService');
-        } else {
+        } elsif ( $content{'action'} eq 'Void' ) {
+          $writer->startTag('voidService',run=>'true');
+            $writer->dataElement('voidRequestID', $content{order_number} // $self->order_number );
+          $writer->endTag('voidService');
+        } elsif ( $content{'action'} eq 'Normal Authorization' ) {
           my $name =  $content{'account_name'} // $content{'name'};
           $writer->startTag('check');
             $writer->dataElement('fullName', $name ) if $name;
