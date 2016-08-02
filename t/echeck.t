@@ -66,7 +66,15 @@ is $client->port(),             443,                                 'Port match
 is $client->path(),             'commerce/1.x/transactionProcessor', 'Path matches';
 
 $TODO = 'result_code:150, is ach enabled on this test account?' if $client->result_code eq '150';
-ok $client->is_success(), 'transaction successful'
+ok $client->is_success(), 'echeck transaction successful'
+  or diag $client->error_message();
+
+$data->{'action'} = 'Credit';
+$data->{'amount'} = 50;
+$data->{'order_number'} = $client->order_number;
+$client->content(%$data);
+$success = $client->submit();
+ok $client->is_success(), 'credit echeck transaction successful'
   or diag $client->error_message();
 
 done_testing;

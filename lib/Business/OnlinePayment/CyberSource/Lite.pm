@@ -16,7 +16,7 @@ use Log::Scrubber qw(disable $SCRUBBER scrubber :Carp scrubber_add_scrubber);
 @ISA     = qw(Business::OnlinePayment);
 $me      = 'Business::OnlinePayment::CyberSource::Lite';
 $DEBUG   = 0;
-$VERSION = '0.001';
+$VERSION = '0.901';
 
 =head1 NAME
 
@@ -387,6 +387,11 @@ sub submit {
           $writer->endTag('businessRules');
         }
     } elsif ( $content{'type'} eq 'ECHECK' ) {
+        if ( $content{'action'} eq 'Credit' ) {
+          $writer->startTag('ecCreditService',run=>'true');
+            $writer->dataElement('debitRequestID', $content{order_number} // $self->order_number );
+          $writer->endTag('ecCreditService');
+        } else {
           my $name =  $content{'account_name'} // $content{'name'};
           $writer->startTag('check');
             $writer->dataElement('fullName', $name ) if $name;
@@ -403,6 +408,7 @@ sub submit {
             $writer->dataElement('checkNumber', $content{'check_number'} ) if $content{'check_number'};
           $writer->endTag('check');
           $writer->emptyTag('ecDebitService',run=>'true');
+        }
     }
         $writer->endTag('requestMessage');
       $writer->endTag('soap:Body');
