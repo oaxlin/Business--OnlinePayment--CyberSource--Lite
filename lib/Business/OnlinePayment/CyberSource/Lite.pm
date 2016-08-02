@@ -475,7 +475,14 @@ sub submit {
 
 sub _default_scrubber {
     my $cc = shift;
-    my $del = substr($cc,0,6).('X'x(length($cc)-10)).substr($cc,-4,4); # show first 6 and last 4
+    my $del = 'DELETED';
+    if (length($cc) > 11) {
+        $del = substr($cc,0,6).('X'x(length($cc)-10)).substr($cc,-4,4); # show first 6 and last 4
+    } elsif (length($cc) > 5) {
+        $del = substr($cc,0,2).('X'x(length($cc)-4)).substr($cc,-2,2); # show first 2 and last 2
+    } else {
+        $del = ('X'x(length($cc)-2)).substr($cc,-2,2); # show last 2
+    }
     return $del;
 }
 
@@ -483,7 +490,7 @@ sub _scrubber_add_card {
     my ( $self, $cc ) = @_;
     return if ! $cc;
     my $scrubber = $self->{_scrubber};
-    scrubber_add_scrubber({$cc=>&{$scrubber}($cc)});
+    scrubber_add_scrubber({quotemeta($cc)=>&{$scrubber}($cc)});
 }
 
 sub _tx_init {
@@ -504,7 +511,7 @@ sub _tx_init {
             ($ptr->{'cvv2'} ? '(?<=[^\d])'.quotemeta($ptr->{'cvv2'}).'(?=[^\d])' : '')=>'DELETED',
             });
         $self->_scrubber_add_card($ptr->{'card_number'});
-        #$self->_scrubber_add_card($ptr->{'account_number'});
+        $self->_scrubber_add_card($ptr->{'account_number'});
     }
 }
 
