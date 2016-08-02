@@ -369,6 +369,7 @@ sub submit {
         } elsif ( $content{'action'} eq 'Void' ) {
           $writer->startTag('voidService',run=>'true');
             $writer->dataElement('voidRequestID', $content{order_number} // $self->order_number );
+          $writer->endTag('voidService');
         } elsif ( $content{'action'} eq 'Post Authorization' ) {
           $writer->startTag('ccCaptureService',run=>'true');
             $writer->dataElement('authRequestID', $content{order_number} // $self->order_number );

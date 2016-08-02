@@ -70,7 +70,7 @@ my %reversal_data = (
  login          => $username,
  password       => $password,
  type           => 'CC',
- action         => 'Void',
+ action         => 'Auth Reversal',
  amount         => $data->{amount},
  invoice_number => $data->{invoice_number},
  po_number      => $client->order_number, );
@@ -80,8 +80,7 @@ $client->test_transaction(1);
 
 $client->submit;
 
-is $client->result_code, 246, 'Got expected failure result_code';
-ok !$client->is_success, 'transaction not successful (as expected)'
+ok $client->is_success, 'transaction successful'
   or diag $client->error_message;
 
 like $client->response_code, qr/^\w+$/x, 'response code is 200';
