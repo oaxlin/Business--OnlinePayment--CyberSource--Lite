@@ -425,7 +425,7 @@ sub submit {
 
     $self->server_request( $post_data );
 
-    my $url = 'https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor';
+    my $url = 'https://'.$self->server.'/commerce/1.x/transactionProcessor';
     my $verify_ssl = 1;
     my $response = HTTP::Tiny->new( verify_SSL=>$verify_ssl )->request('POST', $url, {
         headers => {
