@@ -222,14 +222,15 @@ sub test_transaction {
 
     if (lc($testMode) eq 'sandbox' || lc($testMode) eq 'test' || $testMode eq '1') {
         $self->server('ics2wstest.ic3.com');
-        $self->SUPER::test_transaction(1);
+        $self->{'test_transaction'} = 1;
     } else {
         $self->server('ics2ws.ic3.com');
-        $self->SUPER::test_transaction(0);
+        $self->{'test_transaction'} = 0;
     }
+    return $self->{'test_transaction'};
 }
 
-=head2 submit 
+=head2 submit
 
 Submit your transaction to cybersource
 
